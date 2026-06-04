@@ -16,10 +16,10 @@ app.UseStaticFiles();
 app.UseSession();
 app.MapControllers();
 
-// Redirect root → login page
+// Redirect root → index page (index.html JS will redirect to login if not authenticated)
 app.MapGet("/", context =>
 {
-    context.Response.Redirect("/login.html");
+    context.Response.Redirect("/index.html");
     return Task.CompletedTask;
 });
 

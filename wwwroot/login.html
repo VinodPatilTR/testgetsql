@@ -96,7 +96,7 @@
         });
         const data = await res.json();
         if (data.success) {
-          window.location.href = '/';
+          window.location.href = '/index.html';
         } else {
           errorBox.textContent = data.error || 'Login failed.';
           errorBox.style.display = 'block';
