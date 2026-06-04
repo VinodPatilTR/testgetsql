@@ -2,20 +2,17 @@ import os
 import json
 import pyodbc
 from flask import Flask, render_template, jsonify, request, session, redirect, url_for
-from dotenv import load_dotenv
 from functools import wraps
 
-load_dotenv()
-
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "tctool-secret-2024")
+app.secret_key = "tctool-secret-2024"
 
 # ── DB config ─────────────────────────────────────────────────────────────────
-DB_USER     = os.getenv("DB_USER")
-DB_SERVER   = os.getenv("DB_SERVER")
-DB_NAME     = os.getenv("DB_NAME")
-DB_PORT     = os.getenv("DB_PORT", "1433")
-APP_PASSWORD = os.getenv("APP_PASSWORD", "tctool2024")   # login password
+DB_USER      = "TCtoolUser"
+DB_SERVER    = "eu2-dev-taxcaddy-sqlsrv.database.windows.net"
+DB_NAME      = "eu2-dev-Log-sql-db"
+DB_PORT      = "1433"
+APP_PASSWORD = "tctool2024"   # login password
 
 def get_connection():
     db_password = session.get("db_password")
