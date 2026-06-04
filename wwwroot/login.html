@@ -43,7 +43,7 @@
     .error {
       background: rgba(255,83,112,.1); border: 1px solid rgba(255,83,112,.3);
       border-radius: 8px; padding: 10px 14px; color: var(--danger);
-      font-size: 12px; margin-bottom: 20px;
+      font-size: 12px; margin-bottom: 20px; display: none;
     }
     button {
       width: 100%; padding: 13px;
@@ -53,6 +53,7 @@
       cursor: pointer; transition: opacity .2s; letter-spacing: .04em;
     }
     button:hover { opacity: .88; }
+    button:disabled { opacity: .5; cursor: default; }
     .lock { text-align: center; margin-bottom: 28px; opacity: .3; }
   </style>
 </head>
@@ -65,16 +66,50 @@
     </div>
     <div class="logo">TCTool</div>
     <div class="subtitle">Config Dashboard · Secure Access</div>
-    {% if error %}
-      <div class="error">{{ error }}</div>
-    {% endif %}
-    <form method="POST">
+    <div class="error" id="errorBox"></div>
+    <form id="loginForm">
       <label for="password">App Password</label>
       <input type="password" id="password" name="password" placeholder="Enter access password" autofocus/>
       <label for="db_password">Database Password</label>
       <input type="password" id="db_password" name="db_password" placeholder="Enter database password"/>
-      <button type="submit">Sign In →</button>
+      <button type="submit" id="submitBtn">Sign In →</button>
     </form>
   </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const errorBox = document.getElementById('errorBox');
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+      errorBox.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            appPassword: document.getElementById('password').value,
+            dbPassword: document.getElementById('db_password').value
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = '/';
+        } else {
+          errorBox.textContent = data.error || 'Login failed.';
+          errorBox.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Sign In →';
+        }
+      } catch (err) {
+        errorBox.textContent = 'Network error. Please try again.';
+        errorBox.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Sign In →';
+      }
+    });
+  </script>
 </body>
 </html>

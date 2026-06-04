@@ -222,7 +222,7 @@
   </div>
 
   <footer>
-    <span>TCTool Config Dashboard &nbsp;·&nbsp; Python + Flask</span>
+    <span>TCTool Config Dashboard &nbsp;·&nbsp; .NET Core</span>
     <span>Last refresh: <span id="lastRefresh">—</span></span>
   </footer>
 </div>
@@ -235,7 +235,7 @@
     setStatus('connecting'); showLoading();
     try {
       const res = await fetch('/api/tctoolconfig');
-      if(res.status===401){ window.location='/login'; return; }
+      if(res.status===401){ window.location='/login.html'; return; }
       if(!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       if(!json.success) throw new Error(json.error||'Unknown error');
@@ -281,8 +281,10 @@
       columns.forEach(col=>{
         const v=row[col];
         if(v===null||v===undefined) html+=`<td class="null-val">NULL</td>`;
-        else if(v==='True'||v==='False')
-          html+=`<td><span class="pill ${v==='True'}">${v.toUpperCase()}</span></td>`;
+        else if(v===true||v===false||v==='True'||v==='False'){
+          const bool=(v===true||v==='True');
+          html+=`<td><span class="pill ${bool}">${bool?'TRUE':'FALSE'}</span></td>`;
+        }
         else html+=`<td title="${esc(String(v))}">${esc(String(v))}</td>`;
       });
       html+='</tr>';
