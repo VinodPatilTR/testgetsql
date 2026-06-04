@@ -12,25 +12,26 @@ app.secret_key = os.getenv("SECRET_KEY", "tctool-secret-2024")
 
 # ── DB config ─────────────────────────────────────────────────────────────────
 DB_USER     = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_SERVER   = os.getenv("DB_SERVER")
 DB_NAME     = os.getenv("DB_NAME")
 DB_PORT     = os.getenv("DB_PORT", "1433")
 APP_PASSWORD = os.getenv("APP_PASSWORD", "tctool2024")   # login password
 
-CONN_STR = (
-    f"DRIVER={{ODBC Driver 18 for SQL Server}};"
-    f"SERVER={DB_SERVER},{DB_PORT};"
-    f"DATABASE={DB_NAME};"
-    f"UID={DB_USER};"
-    f"PWD={DB_PASSWORD};"
-    f"Encrypt=yes;"
-    f"TrustServerCertificate=no;"
-    f"Connection Timeout=30;"
-)
-
 def get_connection():
-    return pyodbc.connect(CONN_STR)
+    db_password = session.get("db_password")
+    if not db_password:
+        raise ValueError("DB password not set in session.")
+    conn_str = (
+        f"DRIVER={{ODBC Driver 18 for SQL Server}};"
+        f"SERVER={DB_SERVER},{DB_PORT};"
+        f"DATABASE={DB_NAME};"
+        f"UID={DB_USER};"
+        f"PWD={db_password};"
+        f"Encrypt=yes;"
+        f"TrustServerCertificate=no;"
+        f"Connection Timeout=30;"
+    )
+    return pyodbc.connect(conn_str)
 
 # ── Auth helpers ───────────────────────────────────────────────────────────────
 def login_required(f):
@@ -47,10 +48,16 @@ def login():
     error = None
     if request.method == "POST":
         pwd = request.form.get("password", "")
+        db_pwd = request.form.get("db_password", "")
         if pwd == APP_PASSWORD:
-            session["logged_in"] = True
-            return redirect(url_for("index"))
-        error = "Incorrect password. Please try again."
+            if not db_pwd:
+                error = "Please enter the database password."
+            else:
+                session["logged_in"] = True
+                session["db_password"] = db_pwd
+                return redirect(url_for("index"))
+        else:
+            error = "Incorrect password. Please try again."
     return render_template("login.html", error=error)
 
 @app.route("/logout")

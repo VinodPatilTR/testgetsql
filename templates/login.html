@@ -69,8 +69,10 @@
       <div class="error">{{ error }}</div>
     {% endif %}
     <form method="POST">
-      <label for="password">Password</label>
+      <label for="password">App Password</label>
       <input type="password" id="password" name="password" placeholder="Enter access password" autofocus/>
+      <label for="db_password">Database Password</label>
+      <input type="password" id="db_password" name="db_password" placeholder="Enter database password"/>
       <button type="submit">Sign In →</button>
     </form>
   </div>
